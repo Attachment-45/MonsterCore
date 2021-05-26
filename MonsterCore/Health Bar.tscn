@@ -1,0 +1,30 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://ASSETS/HP BAR/SPRITESHEET - PNG/Outline.png" type="Texture" id=1]
+[ext_resource path="res://ASSETS/HP BAR/SPRITESHEET - PNG/Heart.png" type="Texture" id=2]
+[ext_resource path="res://ASSETS/HP BAR/SPRITESHEET - PNG/HP.png" type="Texture" id=3]
+[ext_resource path="res://HP.gd" type="Script" id=4]
+[ext_resource path="res://Health Bar.gd" type="Script" id=5]
+[ext_resource path="res://hp-bar-position.gd" type="Script" id=6]
+[ext_resource path="res://hp-heart-position.gd" type="Script" id=7]
+
+[node name="Health Bar" type="Node"]
+script = ExtResource( 5 )
+
+[node name="Outline" type="Sprite" parent="."]
+position = Vector2( 200.623, 22.5157 )
+scale = Vector2( 0.37, 1 )
+texture = ExtResource( 1 )
+script = ExtResource( 6 )
+
+[node name="HP" type="Sprite" parent="Outline"]
+position = Vector2( -397.297, 0 )
+texture = ExtResource( 3 )
+offset = Vector2( 400, 0 )
+script = ExtResource( 4 )
+
+[node name="Heart" type="Sprite" parent="."]
+position = Vector2( 26.0062, 23.4595 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 2 )
+script = ExtResource( 7 )
