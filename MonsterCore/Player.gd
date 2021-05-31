@@ -9,14 +9,16 @@ export var start_y = 0
 
 export var hp = 100
 
-export var env_x = 0
-export var env_y = 0
-
 # variables
 var can_move = true
-var key_allows = [false, false, false, false] # up, down, left, right
+var key_allows = [true, true, true, true] # up, down, left, right
 var pre_pos_x = position.x
 var pre_pos_y = position.y
+
+var key_u = false
+var key_d = false
+var key_l = false
+var key_r = false
 
 var screen_size
 
@@ -26,6 +28,37 @@ var damageCounterNext = 100
 var regenCounter = 0
 var regenCounterNext = 100
 
+func enemy_collisions():
+	if get_overlapping_areas().size() > 0:
+		var areas = get_overlapping_areas()
+		for i in range(0, areas.size()):
+			if areas[i].objectId == 1:
+				if damageCounter == damageCounterNext:
+					hp -= areas[i].damageRate
+					damageCounterNext = OS.get_ticks_msec() + 1000
+					get_node("Player-Cam").position.x = get_node("Player-Cam").screen_shake(100)
+					get_node("Player-Cam").position.y = get_node("Player-Cam").screen_shake(100)
+					$Hit.play()
+
+func check_env_coll():
+	if get_overlapping_areas().size() > 0:
+		var areas = get_overlapping_areas()
+		for i in range(0, areas.size()):
+			if areas[i].objectId == 0:
+				return false
+
+func env_collisions(dt, sp):
+	can_move = true
+	if get_overlapping_areas().size() > 0:
+		var areas = get_overlapping_areas()
+		for i in range(0, areas.size()):
+			if areas[i].objectId == 0:
+				can_move = check_env_coll()
+	
+	if can_move == false:
+		position.x = pre_pos_x
+		position.y = pre_pos_y
+
 #executions on load
 func _ready():
 	position.x = start_x
@@ -34,9 +67,15 @@ func _ready():
 
 #updating executions
 func _process(delta):
-	var last_key = ""
+	if get_node("Player-Cam").position.x != 0:
+		get_node("Player-Cam").position.x = 0
 	
-	var vel = Vector2()
+	if get_node("Player-Cam").position.y != 0:
+		get_node("Player-Cam").position.y = 0
+	
+	# can move or not
+	enemy_collisions()
+	env_collisions(delta, speed)
 	
 	# damage counter
 	damageCounter = OS.get_ticks_msec()
@@ -44,17 +83,6 @@ func _process(delta):
 		damageCounter = damageCounterNext
 	elif damageCounter < 0:
 		damageCounter = 0
-	
-	# can move or not
-	if get_overlapping_areas().size() > 0:
-		var areas = get_overlapping_areas()
-		for i in range(0, areas.size()):
-			if areas[i].objectId == 0:
-				can_move = false
-			elif areas[i].objectId == 1:
-				if damageCounter == damageCounterNext:
-					hp -= areas[i].damageRate
-					damageCounterNext = OS.get_ticks_msec() + 1000
 	
 	# health system
 	regenCounter = OS.get_ticks_msec()
@@ -68,39 +96,60 @@ func _process(delta):
 	if hp < 0:
 		hp = 0
 	
-	if can_move == true:
-		key_allows = [true, true, true, true]
-		pre_pos_x = position.x
-		pre_pos_y = position.y
-	
-	if can_move == false:
-		position.x = pre_pos_x
-		position.y = pre_pos_y
-		can_move = true
-	
 	#input
-	if Input.is_action_pressed("ui_right") and key_allows[3]:
-		vel.x += 1
-		env_x -= speed
+	var last_key = ""
+	var isMoving = false
+	if Input.is_action_pressed("ui_right"):
+		if can_move == true or key_allows[3]:
+			pre_pos_x = position.x
+			position.x += speed * delta
+		else:
+			position.x = pre_pos_x
+			can_move = true
 		last_key = "right"
-	if Input.is_action_pressed("ui_left") and key_allows[2]:
-		vel.x -= 1
-		env_x += speed
+		key_r = true
+	else:
+		key_r = false
+	if Input.is_action_pressed("ui_left"):
+		if can_move == true or key_allows[2]:
+			pre_pos_x = position.x
+			position.x -= speed * delta
+		else:
+			position.x = pre_pos_x
+			can_move = true
 		last_key = "left"
-	if Input.is_action_pressed("ui_up") and key_allows[0]:
-		vel.y -= 1
-		env_y += speed
+		key_l = true
+	else:
+		key_l = false
+	if Input.is_action_pressed("ui_up"):
+		if can_move == true or key_allows[0]:
+			pre_pos_y = position.y
+			position.y -= speed * delta
+		else:
+			position.y = pre_pos_y
+			can_move = true
 		last_key = "up"
-	if Input.is_action_pressed("ui_down") and key_allows[1]:
-		vel.y += 1
-		env_y -= speed
+		key_u = true
+	else:
+		key_u = false
+	if Input.is_action_pressed("ui_down"):
+		if can_move == true or key_allows[1]:
+			pre_pos_y = position.y
+			position.y += speed * delta
+		else:
+			position.y = pre_pos_y
+			can_move = true
 		last_key = "down"
+		key_d = true
+	else:
+		key_d = false
 	
-	if vel.length() > 0:
-		vel = vel.normalized() * speed
-		
-		move_type = "MOVE"
-		
+	if key_u or key_d or key_l or key_r:
+		isMoving = true
+	else:
+		isMoving = false
+	
+	if isMoving == true:
 		if last_key == "right":
 			direction_sense = "RIGHT"
 		if last_key == "left":
@@ -109,6 +158,7 @@ func _process(delta):
 			direction_sense = "BACK"
 		if last_key == "down":
 			direction_sense = "FRONT"
+		move_type = "MOVE"
 	else:
 		if last_key == "right":
 			direction_sense = "RIGHT"
@@ -121,6 +171,3 @@ func _process(delta):
 		move_type = "IDLE"
 		
 	$AnimatedSprite.play(direction_sense + " " + move_type)
-	
-	position += vel * delta
-	
