@@ -3,7 +3,7 @@ MonsterCore is a *role playing game* containing aim of **defeating monsters** an
 
 # Current Updates
 > There is no major or public release yet. Game is in development.
-- version: **0.1.3.2a**
+- version: **0.1.3.3a**
 - expected completion date: **not yet fixed**
 - pace: **on time**
 
@@ -24,6 +24,17 @@ MonsterCore is a *role playing game* containing aim of **defeating monsters** an
   - #MoC001 Fixed bug where HP was hidden by objects.
 - Known Issues:
   - Collision with heavy objects(Large) can create situations where player gets stuck inside tree.
+  - Player can walk anywhere, even water and void.
+
+# Change Log *0.1.3.3a*
+- Changes:
+  - **Collision System Improved** and is now being prepared for better collisions in future updates.
+- New Additions:
+  - **Hit System Effects** have been added.
+    - Screenshakes can be noticed.
+    - Sound effects for hitting can be heard.
+- Known Issues:
+  - Collision with heavy objects(Large) can create situations where player gets stuck inside tree, but is less common to occur.
   - Player can walk anywhere, even water and void.
 
 # Creators
